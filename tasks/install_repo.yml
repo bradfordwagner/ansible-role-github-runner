@@ -1,0 +1,85 @@
+---
+- set_fact:
+    repo_install_dir: '{{ runners_install_dir }}/repos/{{ runners_owner }}/{{ repo.name }}'
+
+# copy files to repo_install_dir
+- name: check={{ repo_install_dir }}
+  stat:
+    path: '{{ repo_install_dir }}'
+  changed_when: False
+  register: cache_dir
+- when: not cache_dir.stat.exists
+  block:
+      - name: mkdir={{ repo_install_dir }}
+        file:
+          path: '{{ repo_install_dir }}'
+          state: directory
+          mode: 0755
+      - name: copy src={{ runners_install_cache_dir }}, dest={{ repo_install_dir }}
+        synchronize:
+          src: '{{ runners_install_cache_dir }}/'
+          dest: '{{ repo_install_dir }}/'
+
+# find the runner id if it exists already and remove it, searches by hostname
+- name: deregister={{ repo.name }},runner={{ ansible_hostname }}
+  shell: |
+    # remove runner if it exists
+    runners_json=$(curl -L \
+      -H "Accept: application/vnd.github+json" \
+      -H "Authorization: Bearer {{ runners_token }}" \
+      -H "X-GitHub-Api-Version: 2022-11-28" \
+      https://api.github.com/repos/{{ runners_owner }}/{{ repo.name }}/actions/runners
+    )
+    echo "runners_json=${runners_json}"
+    runner_id=$(echo ${runners_json} | jq -r '.runners[] | select(.name == "{{ ansible_hostname }}") | .id'
+    )
+    echo "runner_id=${runner_id}"
+    if [ "" != "${runner_id}" ]; then
+      curl -L \
+        -X DELETE \
+        -H "Accept: application/vnd.github+json" \
+        -H "Authorization: Bearer {{ runners_token }}" \
+        -H "X-GitHub-Api-Version: 2022-11-28" \
+        https://api.github.com/repos/{{ runners_owner }}/{{ repo.name }}/actions/runners/${runner_id}
+    fi
+
+# register the runner to repo
+- name: register={{ repo.name }}
+  become: false
+  shell: |
+      cd {{ repo_install_dir }}
+      # issue a token for this repository to administrate runners
+      token=$(curl -L \
+        -X POST \
+        -H "Accept: application/vnd.github+json" \
+        -H "Authorization: Bearer {{ runners_token }}" \
+        -H "X-GitHub-Api-Version: 2022-11-28" \
+        https://api.github.com/repos/{{ runners_owner }}/{{ repo.name }}/actions/runners/registration-token \
+        | jq -r .token
+      )
+      ./config.sh \
+        --unattended \
+        --labels '{{ runners_labels }}' \
+        --url https://github.com/{{ runners_owner }}/{{ repo.name }} \
+        --token ${token}
+
+# cleans any existing runner service (orphaned)
+- name: clean_svc={{ repo.name }}
+  become: true
+  ignore_errors: true
+  shell: |
+    cd {{ repo_install_dir }}
+    {{ item }}
+  loop:
+    - ./svc.sh stop
+    - ./svc.sh uninstall
+
+- name: start_svc={{ repo.name }}
+  become: true
+  shell: |
+    cd {{ repo_install_dir }}
+    {{ item }}
+  loop:
+    - ./svc.sh install
+    - ./svc.sh start
+    - ./svc.sh status
