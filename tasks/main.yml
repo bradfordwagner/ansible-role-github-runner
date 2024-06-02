@@ -1,58 +1,51 @@
 ---
-# tasks file for azure-blob-cli
+- set_fact:
+    runners_install_cache_dir: '{{ runners_install_dir }}/versions/{{ runners_version }}'
+    download_url: '{{ runners_mirror }}/v{{ runners_version }}/actions-runner-linux-{{ arch }}-{{ runners_version }}.tar.gz'
+    download_location: '/tmp/actions-runner-linux-{{ arch }}-{{ runners_version }}.tar.gz'
+- debug:
+    msg:
+      - arch={{ arch }}
+      - download_location={{ download_location }}
+      - download_url={{ download_url }}
+      - runners_install_cache_dir={{ runners_install_cache_dir }}
 
-- name: resolve platform specific vars
-  include_vars: '{{ item }}'
-  with_first_found:
-    - files:
-        - '{{ ansible_distribution }}-{{ ansible_distribution_release }}.yml'
-        - '{{ ansible_distribution }}.yml'
-        - '{{ ansible_os_family }}.yml'
-      skip: true
-      paths:
-        - '{{ role_path }}/vars'
-- name: check for {{ abc_install_dir }}
-  become: yes
+# check for existing runner version cache dir
+- name: check={{ runners_install_cache_dir }}
   stat:
-    path: '{{ abc_install_dir }}'
+    path: '{{ runners_install_cache_dir }}'
   changed_when: False
-  register: abc_binary
-- when: not abc_binary.stat.exists
+  register: cache_dir
+- when: not cache_dir.stat.exists
   block:
-    - name: download {{ abc_url }}...
-      become: yes
-      become_user: root
+    - name: download={{ download_url }}, dest={{ download_location }}
       get_url:
-        url: '{{ abc_url }}'
-        dest: '{{ abc_tmp_tgz }}'
-        checksum: '{{ abc_checksum }}'
+        url: '{{ download_url }}'
+        dest: '{{ download_location }}'
         mode: 0644
-    - name: mkdir {{ abc_install_dir }}
-      become: yes
-      become_user: root
+    - name: mkdir={{ runners_install_cache_dir }}
       file:
-        path: '{{ abc_install_dir }}'
+        path: '{{ runners_install_cache_dir }}'
         state: directory
         mode: 0755
-    - name: unarchive {{ abc_tmp_tgz }}
-      become: yes
-      become_user: root
+    - name: unarchive from={{ download_location }},dest={{ runners_install_cache_dir }}
       unarchive:
-        remote_src: yes
-        src: '{{ abc_tmp_tgz }}'
-        dest: '{{ abc_install_dir }}'
-        creates: '{{ abc_installed_exe }}'
+          src: '{{ download_location }}'
+          dest: '{{ runners_install_cache_dir }}'
   always:
-    - name: rm {{ abc_tmp_tgz }}
-      become: yes
-      become_user: root
+    - name: clean={{ download_location }}
       file:
-        path: '{{ abc_tmp_tgz }}'
+        path: '{{ download_location }}'
         state: absent
-- name: link {{ abc_installed_link }} to {{ abc_installed_exe }}
-  become: yes
-  become_user: root
+
+
+- name: clean={{ runners_install_dir }}/repos/{{ runners_owner }}
   file:
-    src: '{{ abc_installed_exe }}'
-    dest: '{{ abc_installed_link }}'
-    state: link
+    path: '{{ runners_install_dir }}/repos/{{ runners_owner }}'
+    state: absent
+
+- include_tasks: install_repo.yml
+  loop: '{{ runners_repos }}'
+  loop_control:
+    loop_var: repo
+  when: not runners_download_bin_only
