@@ -1,8 +1,6 @@
 ---
 - hosts: localhost
-  vars:
-    runners_download_bin_only: true
   roles:
     - role: '{{ playbook_dir }}'
       vars:
-        runners_download_bin_only: '{{ runners_download_bin_only }}'
+        runners_download_bin_only: true
