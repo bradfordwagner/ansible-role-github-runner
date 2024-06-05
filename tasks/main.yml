@@ -41,8 +41,9 @@
 
 - name: clean={{ runners_install_dir }}/repos/{{ runners_owner }}
   file:
-    path: '{{ runners_install_dir }}/repos/{{ runners_owner }}'
+    path: '{{ runners_install_dir }}/repos/{{ runners_owner }}/{{ item }}'
     state: absent
+  loop: '{{ runners_repos }}'
 
 - include_tasks: install_repo.yml
   loop: '{{ runners_repos }}'
