@@ -95,10 +95,10 @@
     - ./svc.sh start
     - ./svc.sh status
 
-- name: runners_script={{ runners_services_script }},runner={{ runner_instance_name }}
+- name: repo={{ repo.name }},runners_script={{ runners_services_script }},runner={{ runner_instance_name }}
   # use input as action ie start/stop
   ansible.builtin.blockinfile:
-    marker: "# {mark} {{ runner_instance_name }}"
+    marker: "# {mark} - {{ repo.name}} - {{ runner_instance_name }}"
     path: '{{ runners_services_script }}'
     create: true
     mode: '0755'
