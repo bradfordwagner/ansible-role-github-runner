@@ -45,12 +45,8 @@
     state: absent
   loop: '{{ runners_repos }}'
 
-# - include_tasks: loop_instances.yml
-#   loop: '{{ runners_repos }}'
-#   loop_control:
-#     loop_var: repo
-#   when: not runners_download_bin_only
-
-- debug:
-    msg: '{{ runners_repos }}'
+- include_tasks: loop_instances.yml
   loop: '{{ runners_repos | product(range(runners_instances)) | list }}'
+  loop_control:
+    loop_var: repo_prod
+  when: not runners_download_bin_only
