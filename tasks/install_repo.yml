@@ -103,4 +103,4 @@
     create: true
     mode: '0755'
     block: |
-      sudo systemctl ${1} actions.runner.{{ runners_owner }}-github-runners.{{ runner_instance_name }}.service
+      sudo systemctl ${1} actions.runner.{{ runners_owner }}-{{ repo.name }}.{{ runner_instance_name }}.service
