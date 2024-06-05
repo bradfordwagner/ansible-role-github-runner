@@ -4,6 +4,7 @@
     instance: '{{ repo_prod.1 }}'
 
 - set_fact:
+    runner_instance_name:  '{{ ansible_hostname }}-{{ instance }}'
     repo_install_dir: '{{ runners_install_dir }}/repos/{{ runners_owner }}/{{ repo.name }}-{{ instance }}'
 
 # copy files to repo_install_dir
@@ -25,7 +26,7 @@
           dest: '{{ repo_install_dir }}/'
 
 # find the runner id if it exists already and remove it, searches by hostname
-- name: deregister={{ repo.name }},runner={{ ansible_hostname }}
+- name: deregister={{ repo.name }},runner={{ runner_instance_name }}
   shell: |
     # remove runner if it exists
     runners_json=$(curl -L \
@@ -35,7 +36,7 @@
       https://api.github.com/repos/{{ runners_owner }}/{{ repo.name }}/actions/runners
     )
     echo "runners_json=${runners_json}"
-    runner_id=$(echo ${runners_json} | jq -r '.runners[] | select(.name == "{{ ansible_hostname }}") | .id'
+    runner_id=$(echo ${runners_json} | jq -r '.runners[] | select(.name == "{{ runner_instance_name }}") | .id'
     )
     echo "runner_id=${runner_id}"
     if [ "" != "${runner_id}" ]; then
@@ -53,7 +54,7 @@
     msg: '{{ deregister.stderr }}'
 
 # register the runner to repo
-- name: register={{ repo.name }}
+- name: register={{ repo.name }},runner={{ runner_instance_name }}
   become: false
   shell: |
       cd {{ repo_install_dir }}
@@ -69,11 +70,12 @@
       ./config.sh \
         --unattended \
         --labels '{{ runners_labels }}' \
+        --name '{{ runner_instance_name }}' \
         --url https://github.com/{{ runners_owner }}/{{ repo.name }} \
         --token ${token}
 
 # cleans any existing runner service (orphaned)
-- name: clean_svc={{ repo.name }}
+- name: clean_svc={{ runner_instance_name }}
   become: true
   ignore_errors: true
   shell: |
@@ -83,7 +85,7 @@
     - ./svc.sh stop
     - ./svc.sh uninstall
 
-- name: start_svc={{ repo.name }}
+- name: start_svc={{ runner_instance_name }}
   become: true
   shell: |
     cd {{ repo_install_dir }}
