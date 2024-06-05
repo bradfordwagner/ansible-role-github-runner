@@ -3,6 +3,7 @@
     runners_install_cache_dir: '{{ runners_install_dir }}/versions/{{ runners_version }}'
     download_url: '{{ runners_mirror }}/v{{ runners_version }}/actions-runner-linux-{{ arch }}-{{ runners_version }}.tar.gz'
     download_location: '/tmp/actions-runner-linux-{{ arch }}-{{ runners_version }}.tar.gz'
+    instances_cast: '{{ runners_instances | int }}'
 - debug:
     msg:
       - arch={{ arch }}
@@ -38,17 +39,16 @@
         path: '{{ download_location }}'
         state: absent
 
-
 - name: clean={{ runners_install_dir }}/repos/{{ runners_owner }}
   file:
     path: '{{ runners_install_dir }}/repos/{{ runners_owner }}/{{ repo_prod.0.name }}-{{ repo_prod.1 }}'
     state: absent
-  loop: '{{ runners_repos | product(range(runners_instances)) | list }}'
+  loop: '{{ runners_repos | product(range(instances_cast)) | list }}'
   loop_control:
     loop_var: repo_prod
 
 - include_tasks: install_repo.yml
-  loop: '{{ runners_repos | product(range(runners_instances)) | list }}'
+  loop: '{{ runners_repos | product(range(instances_cast)) | list }}'
   loop_control:
     loop_var: repo_prod
   when: not runners_download_bin_only
