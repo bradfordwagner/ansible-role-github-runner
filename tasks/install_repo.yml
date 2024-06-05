@@ -1,6 +1,6 @@
 ---
 - set_fact:
-    repo_install_dir: '{{ runners_install_dir }}/repos/{{ runners_owner }}/{{ repo.name }}'
+    repo_install_dir: '{{ runners_install_dir }}/repos/{{ runners_owner }}/{{ repo.name }}-{{ instance }}'
 
 # copy files to repo_install_dir
 - name: check={{ repo_install_dir }}

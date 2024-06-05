@@ -1,0 +1,7 @@
+---
+
+- include_tasks: install_repo.yml
+  loop: '{{ runners_repos }}'
+  loop_control:
+    loop_var: instance
+  with_sequence: start=0 end={{ runners_instances }} stride=1 format=%02
