@@ -41,7 +41,7 @@
 
 - name: clean={{ runners_install_dir }}/repos/{{ runners_owner }}
   file:
-    path: '{{ runners_install_dir }}/repos/{{ runners_owner }}/{{ item }}'
+    path: '{{ runners_install_dir }}/repos/{{ runners_owner }}/{{ item.name }}'
     state: absent
   loop: '{{ runners_repos }}'
 
