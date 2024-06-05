@@ -94,3 +94,12 @@
     - ./svc.sh install
     - ./svc.sh start
     - ./svc.sh status
+
+- name: runners_script={{ runners_script }},runner={{ runner_instance_name }}
+  # use input as action ie start/stop
+  ansible.builtin.blockinfile:
+    marker: "# {mark} {{ runner_instance_name }}"
+    path: '{{ runners_services_script }}'
+    create: true
+    block: |
+      sudo systemctl ${1} actions.runner.{{ runners_owner }}-github-runners.{{ runner_instance_name }}.service
