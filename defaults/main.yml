@@ -16,6 +16,7 @@ runners_token: GITHUB_RUNNER_TOKEN
 
 runners_download_bin_only: false
 
+runners_instances: 2
+
 runners_repos:
-  - name: github-runners
   - name: gh-template-ansible-role
