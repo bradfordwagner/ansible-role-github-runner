@@ -41,11 +41,11 @@
 
 - name: clean={{ runners_install_dir }}/repos/{{ runners_owner }}
   file:
-    path: '{{ runners_install_dir }}/repos/{{ runners_owner }}/{{ item.name }}'
+    path: '{{ runners_install_dir }}/repos/{{ runners_owner }}/{{ repo_prod.0.name }}-{{ repo_prod.1 }}'
     state: absent
-  loop: '{{ runners_repos }}'
+  loop: '{{ runners_repos | product(range(runners_instances)) | list }}'
 
-- include_tasks: loop_instances.yml
+- include_tasks: install_repo.yml
   loop: '{{ runners_repos | product(range(runners_instances)) | list }}'
   loop_control:
     loop_var: repo_prod
