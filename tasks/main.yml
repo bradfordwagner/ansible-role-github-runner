@@ -44,6 +44,8 @@
     path: '{{ runners_install_dir }}/repos/{{ runners_owner }}/{{ repo_prod.0.name }}-{{ repo_prod.1 }}'
     state: absent
   loop: '{{ runners_repos | product(range(runners_instances)) | list }}'
+  loop_control:
+    loop_var: repo_prod
 
 - include_tasks: install_repo.yml
   loop: '{{ runners_repos | product(range(runners_instances)) | list }}'
