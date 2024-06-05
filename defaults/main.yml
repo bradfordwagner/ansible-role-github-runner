@@ -18,5 +18,7 @@ runners_download_bin_only: false
 
 runners_instances: '{{ ansible_processor_cores }}'
 
+runners_script: '{{ ansible_env.HOME }}/actions.runner.config.sh'
+
 runners_repos:
   - name: gh-template-ansible-role
