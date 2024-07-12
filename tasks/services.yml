@@ -65,6 +65,7 @@
   become: true
   shell: |
     mv {{ runners_install_cache_dir }}/svc.sh  {{ repo_install_dir }}/
+    rm -rf {{ runners_install_cache_dir }}/_diag
   register: mv_svc
 
 # cleans any existing runner service (orphaned)
