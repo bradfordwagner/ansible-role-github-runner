@@ -56,9 +56,9 @@
         register: runner_registration
   rescue:
     - debug:
-      msg:
-        - '{{ runner_registration.stdout }}'
-        - '{{ runner_registration.stderr }}'
+        msg:
+          - '{{ runner_registration.stdout }}'
+          - '{{ runner_registration.stderr }}'
 
   # hack copy svc.sh to repo_install_dir
 - name: mv svc.sh, runner={{ runner_instance_name }}
