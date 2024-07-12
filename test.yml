@@ -3,4 +3,4 @@
   roles:
     - role: '{{ playbook_dir }}'
       vars:
-        runners_download_bin_only: true
+        runners_install_only: true

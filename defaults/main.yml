@@ -14,7 +14,7 @@ runners_labels: '{{ ansible_hostname }},self-hosted-arm64'
 # used to create runner (de)registration token
 runners_token: GITHUB_RUNNER_TOKEN
 
-runners_download_bin_only: false
+runners_install_only: false
 
 runners_instances: '{{ ansible_processor_cores }}'
 

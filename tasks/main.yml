@@ -50,4 +50,3 @@
   loop: '{{ runners_repos | product(range(runners_instances | int )) | list }}'
   loop_control:
     loop_var: repo_prod
-  when: not runners_download_bin_only
