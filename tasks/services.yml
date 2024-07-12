@@ -53,6 +53,13 @@
         --url https://github.com/{{ runners_owner }}/{{ repo.name }} \
         --token ${token}
 
+# hack copy svc.sh to repo_install_dir
+- name: mv svc.sh, runner={{ runner_instance_name }}
+  become: true
+  shell: |
+    mv {{ runners_install_cache_dir }}/svc.sh  {{ repo_install_dir }}/
+  register: mv_svc
+
 # cleans any existing runner service (orphaned)
 - name: clean_svc={{ runner_instance_name }}
   become: true
