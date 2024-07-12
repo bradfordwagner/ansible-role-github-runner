@@ -49,7 +49,6 @@
   find:
     paths: '{{ runners_install_cache_dir }}'
     recurse: false
-    file_type: any
   register: runners_cache_files
 - set_fact:
     runners_cache_files_relative_files: "{{ runners_cache_files.files | map(attribute='path') | map('regex_replace', '^' + runners_install_cache_dir + '/', '') | list }}"
