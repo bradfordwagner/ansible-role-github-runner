@@ -28,6 +28,7 @@
     msg: '{{ deregister.stderr }}'
 
 # register the runner to repo
+# creates svc.sh
 - name: register={{ repo.name }},runner={{ runner_instance_name }}
   become: false
   shell: |
@@ -51,7 +52,6 @@
         --name '{{ runner_instance_name }}' \
         --url https://github.com/{{ runners_owner }}/{{ repo.name }} \
         --token ${token}
-  register: register
 
 # cleans any existing runner service (orphaned)
 - name: clean_svc={{ runner_instance_name }}
