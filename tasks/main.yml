@@ -39,6 +39,12 @@
         state: absent
 
 # find files in cache dir, and save them so we dont have to do this for every single repo and core
+- name: find directories in={{ runners_install_cache_dir }}
+  find:
+    paths: '{{ runners_install_cache_dir }}'
+    recurse: false
+    file_type: directory
+  register: runners_cache_directories
 - name: find files in={{ runners_install_cache_dir }}
   find:
     paths: '{{ runners_install_cache_dir }}'
@@ -47,6 +53,7 @@
   register: runners_cache_files
 - set_fact:
     runners_cache_files_relative_files: "{{ runners_cache_files.files | map(attribute='path') | map('regex_replace', '^' + runners_install_cache_dir + '/', '') | list }}"
+    runners_cache_files_relative_directories: "{{ runners_cache_directories.files | map(attribute='path') | map('regex_replace', '^' + runners_install_cache_dir + '/', '') | list }}"
 
 - name: clean={{ runners_install_dir }}/repos/{{ runners_owner }}
   file:

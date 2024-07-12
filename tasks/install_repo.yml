@@ -25,6 +25,12 @@
         dest: '{{ repo_install_dir }}/{{ item }}'
         state: link
         force: true
+      loop: '{{ runners_cache_files_relative_directories }}'
+    - ansible.builtin.file:
+        src: '{{ runners_install_cache_dir }}/{{ item }}'
+        dest: '{{ repo_install_dir }}/{{ item }}'
+        state: hard
+        force: true
       loop: '{{ runners_cache_files_relative_files }}'
 
 - include_tasks: services.yml
