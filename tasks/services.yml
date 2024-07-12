@@ -53,7 +53,7 @@
           --name '{{ runner_instance_name }}' \
           --url https://github.com/{{ runners_owner }}/{{ repo.name }} \
           --token ${token}
-        register: runner_registration
+      register: runner_registration
   rescue:
     - debug:
         msg:
