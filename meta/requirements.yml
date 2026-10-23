@@ -2,4 +2,4 @@
 - role: andrewrothstein.unarchivedeps
   version: 3.0.2
 - role: andrewrothstein.jq
-  version: v2.0.0
+  version: v2.1.1
