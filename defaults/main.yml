@@ -2,7 +2,7 @@
 # defaults file for github runners
 # https://github.com/actions/runner/releases/
 # renovate: datasource=github-releases depName=actions/runner extractVersion=^v(?<version>.*)$
-runners_version: 2.338.1
+runners_version: 2.338.2
 runners_mirror: https://github.com/actions/runner/releases/download
 runners_install_dir: '{{ ansible_env.HOME }}/actions-runner'
 # runners_install_dir: /opt/actions-runner
